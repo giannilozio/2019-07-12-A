@@ -5,8 +5,11 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.food.model.ConPeso;
+import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,22 +44,48 @@ public class FoodController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxFood"
-    private ComboBox<?> boxFood; // Value injected by FXMLLoader
+    private ComboBox<Food> boxFood; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Creazione grafo...");
+    	
+    	int porzioni;
+    	
+    	try {
+    		porzioni = Integer.parseInt(txtPorzioni.getText());
+    	}catch(NumberFormatException e) {
+    		txtResult.appendText("Devi inserire un numero");
+    		return;
+    	}
+    	
+    	model.creaGrafo(porzioni);
+    	txtResult.appendText("Grafo creato."+"\n #Vertici: "+model.getGrafo().vertexSet().size());
+    	txtResult.appendText("# Archi: "+model.getGrafo().edgeSet().size());
+    	boxFood.getItems().addAll(model.getVertici());
+    	
     }
     
     @FXML
     void doCalorie(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Analisi calorie...");
+    	Food f= boxFood.getValue();
+    	int cont=0;
+    	List<ConPeso> pd =  model.getBest(f);
+    	if(pd.isEmpty()) {
+    		txtResult.appendText("Non ha nulla ciao");
+    	}else {
+    		txtResult.appendText("Best: ");
+    	for(ConPeso p: pd) {
+    		txtResult.appendText("\n"+p.toString());
+    		cont++;
+    	if(cont==5)
+    		return;
+    	}
     }
+  }
 
     @FXML
     void doSimula(ActionEvent event) {
@@ -77,5 +106,6 @@ public class FoodController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
     }
 }
